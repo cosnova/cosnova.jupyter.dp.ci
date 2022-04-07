@@ -1,7 +1,7 @@
 FROM jupyter/tensorflow-notebook:latest
 
 USER root
-RUN apt-get update && apt-get upgrade 
+RUN apt-get -y update && apt-get -y upgrade 
 RUN apt-get -y install curl
 RUN apt-get -y install kafkacat
 
