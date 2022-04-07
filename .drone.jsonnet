@@ -18,7 +18,7 @@ local pipeline(name) = {
 
 local kaniko(name, artifact, context, dockerfile, list) = {
     name: name,
-    image: "wunderai/drone-kaniko:%s" % [KANIKO_TAG],
+    image: "cnvtools.azurecr.io/drone-kubectl:main-2022-1",
     pull: "if-not-exists",
     volumes: [ 
       {name: "cache", path: "/cache"}, 
@@ -70,6 +70,7 @@ local build(artifact, directory) = pipeline(artifact) {
             'PLUGIN_SLACK_TEMPLATE=$PLUGIN_SLACK_TEMPLATE_FAILURE /slack',
         ]) + {when: {status:["failure"]},},
     ],
+    image_pull_secrets: ["cnvtools"],
 };
 
 local buildCtx(artifact, directory) = pipeline(artifact) {
@@ -98,6 +99,8 @@ local k8sSecret(name, path, key) = {
 [
   k8sSecret("docker_password", "drone-env-secrets", "REGISTRY_TOOLS_PASSWORD"),
   k8sSecret("slack_token", "drone-env-secrets", "SLACK_TOKEN"),
+  k8sSecret("cnvtools", "drone-env-secrets", "REGISTRY_TOOLS_DOCKERCONFIG"),
+
   
   build('jupyter-tensorflow-notebook', 'jupyterhub'),
 
