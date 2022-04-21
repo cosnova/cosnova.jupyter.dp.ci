@@ -30,7 +30,7 @@ local kaniko(name, artifact, context, dockerfile, list) = {
         context: context,
         auto_tag: true,
         auto_tag_suffix: "${DRONE_BRANCH}", # generates tags like 1.0.1-master, 1.0-master, 1-master
-        tags: ["${DRONE_BRANCH}"],
+        tags: ["${DRONE_BRANCH}","${DRONE_COMMIT_SHA:0:8}"],
         cache: true,
         cache_dir: "/cache",
         debug: true,
