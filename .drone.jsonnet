@@ -18,7 +18,7 @@ local pipeline(name) = {
 
 local kaniko(name, artifact, context, dockerfile, list) = {
     name: name,
-    image: "wunderai/drone-kaniko:%s" % [KANIKO_TAG],
+    image: "cnvtools.azurecr.io/drone-kaniko:main-2022-4",
     pull: "if-not-exists",
     volumes: [ 
       {name: "cache", path: "/cache"}, 
@@ -28,7 +28,7 @@ local kaniko(name, artifact, context, dockerfile, list) = {
     },
     settings: {
         context: context,
-        auto_tag: true,
+        auto_tag: false,
         auto_tag_suffix: "${DRONE_BRANCH}", # generates tags like 1.0.1-master, 1.0-master, 1-master
         tags: ["${DRONE_BRANCH}","${DRONE_COMMIT_SHA:0:8}"],
         cache: true,
@@ -63,6 +63,7 @@ local build(artifact, directory) = pipeline(artifact) {
     trigger: { event: ["push", "tag", "cron"] },
     steps: [
         kaniko("build", artifact, ".", "%s/Dockerfile" % [directory], [
+            'mv /_kaniko /kaniko',
             '/kaniko/plugin.sh',
             # '/slack', # disable slack in case of success - too noisy
         ]),
@@ -73,18 +74,6 @@ local build(artifact, directory) = pipeline(artifact) {
     image_pull_secrets: ["cnvtools"],
 };
 
-local buildCtx(artifact, directory) = pipeline(artifact) {
-    trigger: { event: ["push", "tag", "cron"] },
-    steps: [
-        kaniko("build", artifact, directory, "%s/Dockerfile" % [directory], [
-            '/kaniko/plugin.sh',
-            # '/slack',
-        ]),
-        kaniko("report-failure", artifact, directory, "Dockerfile", [
-            'PLUGIN_SLACK_TEMPLATE=$PLUGIN_SLACK_TEMPLATE_FAILURE /slack',
-        ]) + {when: {status:["failure"]},},
-    ],
-};
 
 local k8sSecret(name, path, key) = {
     kind: "secret",
