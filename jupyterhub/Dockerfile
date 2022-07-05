@@ -2,9 +2,7 @@ FROM jupyter/tensorflow-notebook:latest
 
 USER root
 RUN apt-get -y update && apt-get -y upgrade 
-RUN apt-get -y install curl
-RUN apt-get -y install kafkacat
-RUN apt-get -y install awscli
+RUN apt-get -y install curl kafkacat awscli screen libvips
 
 #RUN apt-get -y install default-jdk scala git openjdk-8-jdk
 #RUN wget https://archive.apache.org/dist/spark/spark-2.4.6/spark-2.4.6-bin-hadoop2.7.tgz
